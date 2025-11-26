@@ -8,7 +8,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-import org.acme.employeescheduling.bootstrap.DemoDataGenerator;
 import org.acme.employeescheduling.domain.EmployeeSchedule;
 import org.acme.employeescheduling.domain.ScheduleState;
 import org.acme.employeescheduling.domain.Shift;
@@ -37,8 +36,8 @@ public class EmployeeScheduleResource {
     @Inject
     ScheduleStateRepository scheduleStateRepository;
 
-    @Inject
-    DemoDataGenerator dataGenerator;
+    // @Inject
+    // DemoDataGenerator dataGenerator;
 
     @Inject
     SolverManager<EmployeeSchedule, Long> solverManager;
@@ -83,7 +82,7 @@ public class EmployeeScheduleResource {
         scheduleState.setLastHistoricDate(newHistoricDate);
         scheduleState.setFirstDraftDate(newDraftDate);
 
-        dataGenerator.generateDraftShifts(scheduleState);
+        // dataGenerator.generateDraftShifts(scheduleState);
     }
 
     @POST
@@ -102,6 +101,12 @@ public class EmployeeScheduleResource {
                 availabilityRepository.listAll(Sort.by("date").and("id")),
                 employeeRepository.listAll(Sort.by("name")),
                 shiftRepository.listAll(Sort.by("location").and("start").and("id")));
+    }
+
+    @GET
+    @Path("/test")
+    public String test() {
+        return "OptaPlanner is running!";
     }
 
     @Transactional
