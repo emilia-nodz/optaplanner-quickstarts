@@ -19,6 +19,8 @@ import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
 import org.optaplanner.core.api.solver.SolutionManager;
 import org.optaplanner.core.api.solver.SolverManager;
 import org.optaplanner.core.api.solver.SolverStatus;
+import org.optaplanner.core.api.solver.SolverFactory;
+import org.optaplanner.core.api.solver.Solver;
 
 import io.quarkus.panache.common.Sort;
 
@@ -43,6 +45,8 @@ public class EmployeeScheduleResource {
     SolverManager<EmployeeSchedule, Long> solverManager;
     @Inject
     SolutionManager<EmployeeSchedule, HardSoftScore> solutionManager;
+    @Inject
+    SolverFactory<EmployeeSchedule> solverFactory;
 
     // To try, open http://localhost:8080/schedule
     @GET
@@ -66,6 +70,13 @@ public class EmployeeScheduleResource {
         solverManager.solveAndListen(SINGLETON_SCHEDULE_ID,
                 this::findById,
                 this::save);
+    }
+
+    @POST
+    @Path("solve-sync")
+    public EmployeeSchedule solveSync(EmployeeSchedule problem) {
+        Solver<EmployeeSchedule> solver = solverFactory.buildSolver();
+        return solver.solve(problem);
     }
 
     @POST

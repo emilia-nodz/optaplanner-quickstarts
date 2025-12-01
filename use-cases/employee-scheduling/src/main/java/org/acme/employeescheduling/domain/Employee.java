@@ -13,6 +13,8 @@ import org.optaplanner.core.api.domain.lookup.PlanningId;
 public class Employee {
     @Id
     @PlanningId
+    Long id;
+
     String name;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -22,9 +24,18 @@ public class Employee {
 
     }
 
-    public Employee(String name, Set<String> skillSet) {
+    public Employee(Long id, String name, Set<String> skillSet) {
+        this.id = id;
         this.name = name;
         this.skillSet = skillSet;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
