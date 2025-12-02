@@ -41,6 +41,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                                 // oneShiftPerDay(constraintFactory),
                                 weeklyHoursTarget(constraintFactory),
                                 distributeShiftsEvenly(constraintFactory), // Równomierne rozłożenie shiftów
+                                consecutiveShiftsPreference(constraintFactory), // Shifty obok siebie
                                 availableDayForEmployee(constraintFactory),
                                 unavailableEmployee(constraintFactory),
                                 desiredDayForEmployee(constraintFactory),
@@ -126,6 +127,22 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                                                 (employee, shiftCount) -> shiftCount.intValue() * shiftCount.intValue()
                                                                 * 3) // Triple penalty
                                 .asConstraint("Distribute shifts evenly among employees");
+        }
+
+        // Preferuj shifty kolejno po sobie dla tego samego pracownika
+        Constraint consecutiveShiftsPreference(ConstraintFactory constraintFactory) {
+                return constraintFactory.forEachUniquePair(Shift.class,
+                                Joiners.equal(Shift::getEmployee),
+                                Joiners.lessThan(Shift::getEnd, Shift::getStart))
+                                .filter((shift1, shift2) -> shift1.getEmployee() != null) // Only check assigned shifts
+                                .filter((shift1, shift2) -> {
+                                        // Reward if shift2 starts within 10 minutes after shift1 ends (consecutive)
+                                        long minutesBetween = Duration.between(shift1.getEnd(), shift2.getStart())
+                                                        .toMinutes();
+                                        return minutesBetween >= 0 && minutesBetween <= 10;
+                                })
+                                .reward(HardSoftScore.ofSoft(5)) // Reward for consecutive shifts
+                                .asConstraint("Consecutive shifts preference");
         }
 
         Constraint availableDayForEmployee(ConstraintFactory constraintFactory) {
