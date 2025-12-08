@@ -120,8 +120,8 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                                                 Joiners.equal(Shift::getEmployee, Availability::getEmployee))
                                 .filter((shift, availability) -> availability
                                                 .getAvailabilityType() == AvailabilityType.UNAVAILABLE)
-                                .penalize(HardSoftScore.ofHard(10),
-                                                (shift, availability) -> getShiftDurationInMinutes(shift))
+                                .penalize(HardSoftScore.ONE_HARD,
+                                                (shift, availability) -> getShiftDurationInMinutes(shift) * getShiftDurationInMinutes(shift))
                                 .asConstraint("Unavailable employee");
         }
 
