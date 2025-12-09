@@ -38,6 +38,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                                 weeklyHoursTarget(constraintFactory),
                                 // maxWeeklyHours(constraintFactory),
                                 consecutiveShiftsPreference(constraintFactory),
+                                availableDayForEmployee(constraintFactory),
                                 unavailableEmployee(constraintFactory),
                                 desiredDayForEmployee(constraintFactory),
                                 undesiredDayForEmployee(constraintFactory),
@@ -136,7 +137,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                                 .filter((shift, availability) -> availability
                                                 .getAvailabilityType() == AvailabilityType.UNAVAILABLE)
                                 .penalize(HardSoftScore.ONE_HARD,
-                                                (shift, availability) -> getShiftDurationInMinutes(shift) * 1000)
+                                                (shift, availability) -> getShiftDurationInMinutes(shift) * getShiftDurationInMinutes(shift))
                                 .asConstraint("Unavailable employee");
         }
 
@@ -149,7 +150,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                                                 Joiners.equal(Shift::getEmployee, Availability::getEmployee))
                                 .filter((shift, availability) -> availability
                                                 .getAvailabilityType() == AvailabilityType.DESIRED)
-                                .reward(HardSoftScore.ofSoft(5),
+                                .reward(HardSoftScore.ONE_SOFT,
                                                 (shift, availability) -> getShiftDurationInMinutes(shift))
                                 .asConstraint("Desired day for employee");
         }
@@ -163,7 +164,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                                                 Joiners.equal(Shift::getEmployee, Availability::getEmployee))
                                 .filter((shift, availability) -> availability
                                                 .getAvailabilityType() == AvailabilityType.UNDESIRED)
-                                .penalize(HardSoftScore.ofSoft(5),
+                                .penalize(HardSoftScore.ONE_SOFT,
                                                 (shift, availability) -> getShiftDurationInMinutes(shift))
                                 .asConstraint("Undesired day for employee");
         }
